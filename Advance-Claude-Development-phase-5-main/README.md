@@ -158,7 +158,7 @@ minikube version
 ### Step 1: Clone the repository
 
 ```bash
-git clone https://github.com/asadaligith/Advance_Claude_Deployment.git
+git clone https://github.com/umerfakih56/Hackaton2Phase5
 cd Advance_Claude_Deployment
 ```
 
