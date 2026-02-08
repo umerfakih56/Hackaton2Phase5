@@ -1,0 +1,20 @@
+replicaCount: 1
+
+image:
+  repository: todo-frontend
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  port: 3000
+
+env:
+  NEXT_PUBLIC_BACKEND_URL: "http://todo-backend:8000"
+
+resources:
+  limits:
+    cpu: 300m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

@@ -1,0 +1,27 @@
+replicaCount: 1
+
+image:
+  repository: todo-backend
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  port: 8000
+
+dapr:
+  enabled: true
+  appId: backend
+  appPort: 8000
+
+env:
+  DATABASE_URL: ""
+  OPENAI_API_KEY: ""
+  DAPR_HTTP_PORT: "3500"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi

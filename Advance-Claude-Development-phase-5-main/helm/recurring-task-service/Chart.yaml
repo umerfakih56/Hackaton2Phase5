@@ -1,0 +1,6 @@
+apiVersion: v2
+name: recurring-task-service
+description: Recurring Task Service for Todo Chatbot
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

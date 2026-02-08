@@ -1,0 +1,70 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  REGISTRY: ${{ secrets.DOCKER_REGISTRY }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        service:
+          - { name: backend, context: ./backend }
+          - { name: frontend, context: ./frontend }
+          - { name: recurring-task, context: ./services/recurring-task }
+          - { name: notification, context: ./services/notification }
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.service.context }}
+          push: true
+          tags: ${{ env.REGISTRY }}/todo-${{ matrix.service.name }}:${{ github.sha }},${{ env.REGISTRY }}/todo-${{ matrix.service.name }}:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: azure/setup-helm@v4
+
+      - uses: azure/k8s-set-context@v4
+        with:
+          kubeconfig: ${{ secrets.KUBE_CONFIG }}
+
+      - name: Deploy backend
+        run: |
+          helm upgrade --install backend ./helm/backend \
+            -f helm/backend/values-cloud.yaml \
+            --set image.tag=${{ github.sha }}
+
+      - name: Deploy frontend
+        run: |
+          helm upgrade --install frontend ./helm/frontend \
+            -f helm/frontend/values-cloud.yaml \
+            --set image.tag=${{ github.sha }}
+
+      - name: Deploy recurring-task-service
+        run: |
+          helm upgrade --install recurring-task-service ./helm/recurring-task-service \
+            -f helm/recurring-task-service/values-cloud.yaml \
+            --set image.tag=${{ github.sha }}
+
+      - name: Deploy notification-service
+        run: |
+          helm upgrade --install notification-service ./helm/notification-service \
+            -f helm/notification-service/values-cloud.yaml \
+            --set image.tag=${{ github.sha }}

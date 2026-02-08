@@ -1,0 +1,26 @@
+replicaCount: 1
+
+image:
+  repository: your-registry.azurecr.io/todo-recurring-task
+  tag: latest
+  pullPolicy: Always
+
+service:
+  port: 8001
+
+dapr:
+  enabled: true
+  appId: recurring-task-service
+  appPort: 8001
+
+env:
+  DAPR_HTTP_PORT: "3500"
+  BACKEND_API_URL: "http://backend-backend:8000"
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 256Mi
